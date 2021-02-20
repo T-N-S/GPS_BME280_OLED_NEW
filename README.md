@@ -23,23 +23,29 @@ GPS Data Logger build from scratch to replace Box_GPS_BME280_OLED
   2021-02-20;18:15:01;51.613274;14.498179;71.40;7.79;68.97;1012.34;
   2021-02-20;18:15:04;51.613243;14.498161;71.60;7.82;69.27;1012.42;  
   ```
-* Wiring to Arduino:
-  I2C devices, for both BME280 and OLED
-  SDA - A4 - level shifter 5V <-> 3V3
-  SCL - A5 - level shifter 5V <-> 3V3
+  * Wiring to Arduino:
+    I2C devices, for both BME280 and OLED
+    * SDA - A4 - level shifter 5V <-> 3V3
+    * SCL - A5 - level shifter 5V <-> 3V3
+
+    ![](https://github.com/NaWiSchool/GPS_BME280_OLED_NEW/blob/main/Images/IMG_20210220_171854512_HDR.jpg)
+    
+  * SPI - CardReader
+    * MOSI - pin 11
+    * MISO - pin 12
+  * CLK - pin 13
+    * CS - pin 10
   
-  SPI - CardReader
-  MOSI - pin 11
-  MISO - pin 12
-  CLK - pin 13
-  CS - pin 10
-   
-  Serial - GPS
-  TX - D3, connects to RX of GPS (can be skipped, no data send from Arduino to GPS)
-  RX - D4, connects to TX of GPS
+  * Serial - GPS
+    * TX - D3, connects to RX of GPS (can be skipped, no data send from Arduino to GPS)
+    * RX - D4, connects to TX of GPS
 
-* TODOs
-  Flush Lat: and Lng: values to the left on OLED
+## TODOs
 
-* Issues
-  Short of memory, might affect stability -> disable OLED
+  * Flush Lat: and Lng: values to the left on OLED
+
+## Issues
+
+  * Short of memory, might affect stability -> disable OLED
+
+
