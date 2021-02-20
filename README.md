@@ -37,3 +37,9 @@ GPS Data Logger build from scratch to replace Box_GPS_BME280_OLED
   Serial - GPS
   TX - D3, connects to RX of GPS (can be skipped, no data send from Arduino to GPS)
   RX - D4, connects to TX of GPS
+
+* TODOs
+  Flush Lat: and Lng: values to the left on OLED
+
+* Issues
+  Short of memory, might affect stability -> disable OLED
