@@ -29,6 +29,7 @@ GPS Data Logger build from scratch to replace Box_GPS_BME280_OLED
     * SCL - A5 - level shifter 5V <-> 3V3
 
     ![](https://github.com/NaWiSchool/GPS_BME280_OLED_NEW/blob/main/Images/IMG_20210220_171854512_HDR.jpg)
+    ![](https://github.com/NaWiSchool/GPS_BME280_OLED_NEW/blob/main/Fritzing/GPS_BME280_OLED_NEW_Fritzing_Steckplatine.png)
     
   * SPI - CardReader
     * MOSI - pin 11
