@@ -1,13 +1,14 @@
 /*
  *  Sketch for controlling an GPS-Module and BME280
  *  Output on OLED and SD-Card (data logger).
- *  Version: 0.1
+ *  Version: 0.2
  *  Author: M. Luetzelberger, info@raspberryblog.de
  *  Date: 2021-02-19
  *  License: CC-SA-BY-NC 4.0
  *  Changes:
  *  * 2021-02-19 initial version
  *  * 2021-02-20 add SD-Card
+ *  * 2021-02-22 fix OLED output, print dataString to console
  *  
  *  Dependencies:
  *  https://github.com/JVKran/Forced-BME280, License: Apache-2.0
@@ -51,6 +52,7 @@
 #define GPSBaud 9600
 #define BaudRate 115200
 #define chipSelect 10
+#define POLLING_INTERVAL 3000
 
 // Objects
 TinyGPSPlus gps;
@@ -85,21 +87,20 @@ void setup() {
 
 //
 void loop() {
- printDateTime(gps.date, gps.time); // print time in ISO format
- printFloat("Lat: ", gps.location.lat(), gps.location.isValid(), 11, 6);
- printFloat("Lon: ", gps.location.lng(), gps.location.isValid(), 11, 6);
- printFloat("Alt: ", gps.altitude.meters(), gps.altitude.isValid(), 6, 2);
- printFloat("Temp: ", bme280.getTemperatureCelcius(true),true,6,2);
- printFloat("Humi: ", bme280.getRelativeHumidity(true),true,6,2);
- printFloat("Pres: ", bme280.getPressure(true),true,6,2);
- Serial.println();
+ printDateTime(gps.date, gps.time,";"); // print time in ISO format
+ printFloat("Lat: ", gps.location.lat(), gps.location.isValid(), 6, 6,";");
+ printFloat("Lon: ", gps.location.lng(), gps.location.isValid(), 6, 6,";");
+ printFloat("Alt: ", gps.altitude.meters(), gps.altitude.isValid(), 6, 2,";");
+ printFloat("Temp: ", bme280.getTemperatureCelcius(true),true,6,2,";");
+ printFloat("Humi: ", bme280.getRelativeHumidity(true),true,6,2,";");
+ printFloat("Pres: ", bme280.getPressure(true),true,6,2,"");
  if (millis() > 5000 && gps.charsProcessed() < 10) {
     Serial.println(F("No GPS data received: check wiring"));
 }
  #ifdef ENLOG
  SDwrite();
  #endif
- smartDelay(3000);
+ smartDelay(POLLING_INTERVAL);
  #ifdef DEBUG
     oled.clear();
  #endif
@@ -136,11 +137,8 @@ static void smartDelay(unsigned long ms)
 }
 
 // Functions for console output
-static void printFloat(const char *str, float val, bool valid, int len, int prec) {
+static void printFloat(const char *str, float val, bool valid, int len, int prec, const char *sep) {
   if (!valid) {
-    #ifdef DEBUG
-    Serial.print(F("NULL "));
-    #endif
     dataString += String("NULL;");
   }
   else
@@ -148,30 +146,18 @@ static void printFloat(const char *str, float val, bool valid, int len, int prec
     #ifdef DEBUG
     int slen = strlen(str);
     for (int i=0; i<len; ++i) {
-      Serial.print(i<slen ? str[i] : ' ');
       oled.print(i<slen ? str[i] : ' ');
     }
-    Serial.print(val, prec);
     oled.println(val, prec);
     #endif
     dataString += String(val, prec);
-    dataString += String(";");
-    #ifdef DEBUG
-    int vi = abs((int)val);
-    int flen = prec + (val < 0.0 ? 2 : 1); // . and -
-    flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
-    for (int i=flen; i<len; ++i)
-    Serial.print(' ');
-    #endif
+    dataString += String(sep);
   }
   smartDelay(0);
 }
 
-static void printDateTime(TinyGPSDate &d, TinyGPSTime &t) {
+static void printDateTime(TinyGPSDate &d, TinyGPSTime &t, const char *sep) {
   if (!d.isValid()) {
-    #ifdef DEBUG
-        Serial.print(F("NULL;"));
-    #endif
     dataString += String(F("NULL;"));
   }
   else
@@ -179,17 +165,14 @@ static void printDateTime(TinyGPSDate &d, TinyGPSTime &t) {
     char sz[32];
     sprintf(sz, "%02d-%02d-%02d", d.year(), d.month(), d.day());
     #ifdef DEBUG
-        Serial.print(sz);
         oled.print(sz);
+        oled.print(" ");
     #endif    
     dataString += String(sz);
-    dataString += String(F(";"));
+    dataString += String(sep);
   }
   
   if (!t.isValid()) {
-    #ifdef DEBUG
-        Serial.print(F("NULL;"));
-    #endif
     dataString += String(F("NULL;"));
   }
   else
@@ -197,12 +180,10 @@ static void printDateTime(TinyGPSDate &d, TinyGPSTime &t) {
     char sz[32];
     sprintf(sz, "%02d:%02d:%02d", t.hour(), t.minute(), t.second());
     #ifdef DEBUG
-        Serial.print(sz);
-        Serial.print(F(" "));
         oled.println(sz);
     #endif    
     dataString += String(sz);
-    dataString += String(F(";"));
+    dataString += String(sep);
   }
   smartDelay(0);
 }
